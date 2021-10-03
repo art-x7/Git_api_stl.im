@@ -1,19 +1,18 @@
 import requests
 
-from log.logger import logger
-from datetime import datetime, timedelta
-from endpoints import GitHubEndpoints
 from flask import Flask
 from flask_restful import abort, Api, Resource
+from datetime import datetime, timedelta
+from log.logger import logger
+from endpoints import GitHubEndpoints
+
 
 app = Flask(__name__)
 api = Api(app)
 app.config.from_object("config.Config")
-
 headers = {"Authorization": 'token %s' % app.config.get("GIT_API_TOKEN")}
 
 url = GitHubEndpoints.repo_url.value % (app.config.get("USER"), app.config.get("REPO_NAME"))
-
 pulls_url = url + GitHubEndpoints.pulls.value
 issues_url = url + GitHubEndpoints.issues.value
 forks_url = url + GitHubEndpoints.forks.value
@@ -29,10 +28,11 @@ def abort_if_keys_doenst_exist(key, data):
         for item in data:
             if key not in item.keys():
                 abort(404, message=f"GitHub {key} doesn't exist.")
+        return True
     else:
         if key not in data.keys():
             abort(404, message=f"GitHub {key} doesn't exist.")
-
+        return True
 
 class Git_id(Resource):
     def get(self, key):
